@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rl 'protected static ?string $navigationGroup' app/Filament/Resources/)",
+      "Bash(xargs sed:*)"
+    ]
+  }
+}
