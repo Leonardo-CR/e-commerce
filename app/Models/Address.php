@@ -9,29 +9,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Address extends Model
 {
     use HasFactory;
-    protected $table      = 'addresses';
+
     protected $primaryKey = 'idAddress';
 
     protected $fillable = [
         'street',
         'colony',
         'city',
-        'eliminated',
         'number',
         'state',
         'zip',
+        'is_default',
         'user_id',
+        'eliminated'
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'eliminated' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'is_default' => 'boolean',
+        'eliminated' => 'boolean',
+    ];
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 }

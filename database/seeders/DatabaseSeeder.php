@@ -25,24 +25,24 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // ── 1. Admin fijo (para acceder a Filament) ──────────────────────────
-        $admin = User::factory()->create([
-            'name'         => 'Administrador',
-            'email'        => 'admin@audifonos.mx',
-            'password'     => Hash::make('password'),
-            'is_admin'     => true,
-            'is_superuser' => true,
-            'CURP'         => 'ADMA900101MDFXXX01',
-            'phone'        => '5512345678',
-        ]);
+        // ── 1. Usuarios (Admin y Regulares) ─────────────────────────────────
+        $users = collect();
 
-        // ── 2. Usuarios regulares ─────────────────────────────────────────────
-        $users = User::factory(12)->create([
+        $admin = User::firstOrCreate(['email' => 'admin@halosound.com'], [
+            'name' => 'Administrador',
+            'password' => Hash::make('admin@halosound.com'),
+            'is_admin' => true,
+            'is_superuser' => true,
+        ]);
+        $users->push($admin);
+
+        // Usuarios adicionales
+        $others = User::factory(12)->create([
             'is_admin'     => false,
             'is_superuser' => false,
         ]);
-
-        $todos = $users->push($admin);
+        
+        $todos = $users->merge($others);
 
         // ── 3. Direcciones (1-2 por usuario) ─────────────────────────────────
         $todos->each(function (User $user) {

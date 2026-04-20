@@ -23,4 +23,8 @@ Route::middleware([
     Route::get('/cart', function () {
         return view('cart');
     })->name('cart');
+
+    Route::get('/addresses', function () {
+        return view('addresses');
+    })->name('addresses');
 });

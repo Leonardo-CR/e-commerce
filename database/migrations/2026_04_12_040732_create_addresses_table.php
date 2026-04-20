@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('number');
             $table->string('state');
             $table->string('zip');
+            $table->boolean('is_default')->default(false);
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
