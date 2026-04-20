@@ -55,12 +55,24 @@ class DatabaseSeeder extends Seeder
 
         // ── 5. Catálogo de audífonos ─────────────────────────────────────────
         $earphones = collect();
-        $suppliers->each(function (Supplier $supplier) use (&$earphones) {
-            $nuevos = Earphone::factory(fake()->numberBetween(3, 5))->create([
-                'idSupplier' => $supplier->idSupplier,
+        foreach (range(1, 20) as $i) {
+            $numColors = fake()->numberBetween(1, 3);
+            $colors = [];
+            for ($c = 0; $c < $numColors; $c++) {
+                $colors[] = [
+                    'hex' => fake()->safeHexColor(),
+                    'idSupplier' => $suppliers->random()->idSupplier,
+                    'stock' => fake()->numberBetween(5, 20),
+                    'image' => 'images/products/' . fake()->randomElement(['apple.png', 'huawei.png', 'samsung.png']),
+                ];
+            }
+
+            $earphone = Earphone::factory()->create([
+                'colors' => $colors,
+                'stock' => collect($colors)->sum('stock'),
             ]);
-            $earphones = $earphones->merge($nuevos);
-        });
+            $earphones->push($earphone);
+        }
 
         // ── 6. Carritos y artículos ───────────────────────────────────────────
         $users->each(function (User $user) use ($earphones) {
@@ -136,8 +148,11 @@ class DatabaseSeeder extends Seeder
             for ($i = 0; $i < $numPurchases; $i++) {
                 $purchase = Purchase::factory()->create();
 
-                // Audífonos de este proveedor
-                $propios = $earphones->where('idSupplier', $supplier->idSupplier);
+                // Audífonos que tengan al menos un color de este proveedor
+                $propios = $earphones->filter(function ($earphone) use ($supplier) {
+                    return collect($earphone->colors)->contains('idSupplier', $supplier->idSupplier);
+                });
+                
                 if ($propios->isEmpty()) {
                     $propios = $earphones;
                 }

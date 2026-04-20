@@ -15,12 +15,10 @@ return new class extends Migration
             $table->id('idEarphone');
             $table->decimal('price', 10, 2);
             $table->integer('stock');
-            $table->string('image')->nullable();
             $table->text('description')->nullable();
             $table->string('name');
-            $table->unsignedBigInteger('idSupplier');
+            $table->json('colors')->nullable();
             $table->unsignedBigInteger('order_item_id')->nullable();
-            $table->foreign('idSupplier')->references('idSupplier')->on('suppliers')->onDelete('cascade');
             $table->timestamps();
         });
     }

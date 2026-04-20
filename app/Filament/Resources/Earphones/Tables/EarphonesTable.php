@@ -16,7 +16,8 @@ class EarphonesTable
         return $table
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Imagen'),
+                    ->label('Imagen')
+                    ->disk('public_uploads'),
                 TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable(),

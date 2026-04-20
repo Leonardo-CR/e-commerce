@@ -16,10 +16,9 @@ class Earphone extends Model
     protected $fillable = [
         'price',
         'stock',
-        'image',
         'description',
         'name',
-        'idSupplier',
+        'colors',
         'order_item_id',
     ];
 
@@ -28,6 +27,7 @@ class Earphone extends Model
         return [
             'price' => 'decimal:2',
             'stock' => 'integer',
+            'colors' => 'array',
         ];
     }
 

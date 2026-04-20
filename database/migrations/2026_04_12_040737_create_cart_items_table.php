@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('subtotal', 10, 2);
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);
+            $table->string('color')->nullable();
             $table->foreign('idEarphone')->references('idEarphone')->on('earphones')->onDelete('cascade');
             $table->foreign('idCart')->references('idCart')->on('carts')->onDelete('cascade');
             $table->timestamps();

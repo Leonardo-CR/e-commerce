@@ -29,10 +29,9 @@ class EarphoneFactory extends Factory
         return [
             'name'        => "{$brand} {$type} {$model}",
             'price'       => fake()->randomFloat(2, 299, 4999),
-            'stock'       => fake()->numberBetween(5, 150),
+            'stock'       => 0,
             'description' => fake()->randomElement($descriptions),
-            'image'       => null,
-            'idSupplier'  => Supplier::factory(),
+            'colors'      => [],
         ];
     }
 }
