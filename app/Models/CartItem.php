@@ -18,6 +18,7 @@ class CartItem extends Model
         'subtotal',
         'quantity',
         'unit_price',
+        'color_id',
     ];
 
     protected function casts(): array
@@ -37,5 +38,10 @@ class CartItem extends Model
     public function earphone(): BelongsTo
     {
         return $this->belongsTo(Earphone::class, 'idEarphone', 'idEarphone');
+    }
+
+    public function color(): BelongsTo
+    {
+        return $this->belongsTo(Color::class, 'color_id');
     }
 }

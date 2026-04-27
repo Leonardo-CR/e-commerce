@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Color;
 use App\Models\Earphone;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -16,11 +17,10 @@ class HeadphoneCatalogue extends Component
     public $maxPrice = 5000;
     public $colors = [];
     public $types = [];
-    public $selectedColors = []; // Track selection per product in listing
+    public $selectedColors = [];
 
     public function mount()
     {
-        // Default to first color for all products
         $this->selectedColors = Earphone::pluck('idEarphone')
             ->mapWithKeys(fn($id) => [$id => 0])
             ->toArray();
@@ -31,7 +31,6 @@ class HeadphoneCatalogue extends Component
         $this->selectedColors[$productId] = $index;
     }
 
-    // Reset pagination when search/filters change
     public function updated($propertyName)
     {
         if (in_array($propertyName, ['search', 'minPrice', 'maxPrice', 'selectedBrands', 'colors'])) {
@@ -49,28 +48,32 @@ class HeadphoneCatalogue extends Component
         }
 
         if (!empty($this->selectedBrands)) {
-            $query->where(function($q) {
+            $query->where(function ($q) {
                 foreach ($this->selectedBrands as $brand) {
                     $q->orWhere('name', 'like', '%' . $brand . '%');
                 }
             });
         }
 
-        // Rango de precio
         $query->whereBetween('price', [$this->minPrice, $this->maxPrice]);
 
         if (!empty($this->colors)) {
-            $query->where(function($q) {
-                foreach ($this->colors as $color) {
-                    $q->orWhere('description', 'like', '%' . $color . '%');
+            $query->where(function ($q) {
+                foreach ($this->colors as $colorId) {
+                    $q->orWhereJsonContains('colors', ['color_id' => (int) $colorId]);
                 }
             });
         }
 
         $products = $query->paginate(12);
 
+        $colorsMap = Color::all()->keyBy('id');
+        $availableColors = Color::orderBy('name')->get();
+
         return view('livewire.headphone-catalogue', [
-            'products' => $products
+            'products'        => $products,
+            'colorsMap'       => $colorsMap,
+            'availableColors' => $availableColors,
         ]);
     }
 
@@ -81,22 +84,20 @@ class HeadphoneCatalogue extends Component
             return;
         }
 
-        $user = auth()->user();
+        $user    = auth()->user();
         $product = Earphone::findOrFail($productId);
-        
-        $colorIndex = $this->selectedColors[$productId] ?? 0;
-        $selectedHex = $product->colors[$colorIndex]['hex'] ?? null;
 
-        // Get or create active cart
+        $colorIndex = $this->selectedColors[$productId] ?? 0;
+        $colorId    = $product->colors[$colorIndex]['color_id'] ?? null;
+
         $cart = \App\Models\Cart::firstOrCreate(
             ['user_id' => $user->id, 'status' => 'active'],
             ['status' => 'active']
         );
 
-        // Add or update item
         $cartItem = \App\Models\CartItem::where('idCart', $cart->idCart)
             ->where('idEarphone', $productId)
-            ->where('color', $selectedHex) // Match same product AND same color
+            ->where('color_id', $colorId)
             ->first();
 
         if ($cartItem) {
@@ -105,12 +106,12 @@ class HeadphoneCatalogue extends Component
             $cartItem->save();
         } else {
             \App\Models\CartItem::create([
-                'idCart' => $cart->idCart,
+                'idCart'     => $cart->idCart,
                 'idEarphone' => $productId,
-                'quantity' => 1,
+                'quantity'   => 1,
                 'unit_price' => $product->price,
-                'subtotal' => $product->price,
-                'color' => $selectedHex
+                'subtotal'   => $product->price,
+                'color_id'   => $colorId,
             ]);
         }
 

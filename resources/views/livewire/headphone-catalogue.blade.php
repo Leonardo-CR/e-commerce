@@ -104,10 +104,11 @@
         <div>
             <h3 class="text-sm font-bold text-slate-900 mb-4">Color</h3>
             <div class="space-y-3">
-                @foreach(['Azul', 'Blanco', 'Negro'] as $color)
-                    <label class="flex items-center group cursor-pointer">
-                        <input type="checkbox" wire:model.live="colors" value="{{ $color }}" class="w-4 h-4 text-indigo-600 border-slate-200 rounded focus:ring-indigo-500">
-                        <span class="ml-3 text-sm text-slate-600 group-hover:text-slate-900 transition">{{ $color }}</span>
+                @foreach($availableColors as $color)
+                    <label class="flex items-center gap-3 group cursor-pointer">
+                        <input type="checkbox" wire:model.live="colors" value="{{ $color->id }}" class="w-4 h-4 text-indigo-600 border-slate-200 rounded focus:ring-indigo-500">
+                        <span class="w-4 h-4 rounded-full border border-slate-200 shadow-sm flex-shrink-0" style="background-color: {{ $color->hex }}"></span>
+                        <span class="text-sm text-slate-600 group-hover:text-slate-900 transition">{{ $color->name }}</span>
                     </label>
                 @endforeach
             </div>
@@ -161,9 +162,10 @@
             @forelse($products as $product)
                 @php
                     $firstColor = $product->colors ? $product->colors[0] : null;
-                    $defaultImage = $firstColor 
+                    $defaultImage = $firstColor
                         ? (str_contains($firstColor['image'], 'images/') ? asset($firstColor['image']) : Storage::url($firstColor['image']))
                         : asset('images/placeholder.png');
+                    $firstHex = $firstColor ? ($colorsMap[$firstColor['color_id'] ?? null]?->hex ?? '#cccccc') : '#cccccc';
                 @endphp
 
                 <div 
@@ -192,13 +194,15 @@
                                     @php
                                         $colorImageUrl = str_contains($color['image'], 'images/') ? asset($color['image']) : Storage::url($color['image']);
                                         $isSelected = ($selectedColors[$product->idEarphone] ?? 0) == $loop->index;
+                                        $hex = $colorsMap[$color['color_id'] ?? null]?->hex ?? '#cccccc';
+                                        $colorName = $colorsMap[$color['color_id'] ?? null]?->name ?? '';
                                     @endphp
-                                    <button 
+                                    <button
                                         @click="activeImage = '{{ $colorImageUrl }}'"
                                         wire:click="selectColor({{ $product->idEarphone }}, {{ $loop->index }})"
-                                        class="w-4 h-4 rounded-full border shadow-sm transition transform hover:scale-125 focus:outline-none {{ $isSelected ? 'ring-2 ring-indigo-600 border-white' : 'border-slate-200' }}" 
-                                        style="background-color: {{ $color['hex'] }}"
-                                        title="Stock: {{ $color['stock'] }}"
+                                        class="w-4 h-4 rounded-full border shadow-sm transition transform hover:scale-125 focus:outline-none {{ $isSelected ? 'ring-2 ring-indigo-600 border-white' : 'border-slate-200' }}"
+                                        style="background-color: {{ $hex }}"
+                                        title="{{ $colorName }} — Stock: {{ $color['stock'] }}"
                                     ></button>
                                 @endforeach
                             </div>

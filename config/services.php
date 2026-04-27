@@ -35,4 +35,21 @@ return [
         ],
     ],
 
+    'conekta' => [
+        'key' => env('CONEKTA_PRIVATE_KEY'),
+    ],
+
+    'envia' => [
+        'token'   => env('ENVIA_MX_API_KEY'),
+        'sandbox' => env('ENVIA_SANDBOX', true),
+        'origin'  => [
+            'name'        => env('ENVIA_ORIGIN_NAME', 'HaloSound'),
+            'phone'       => env('ENVIA_ORIGIN_PHONE', '+528180000000'),
+            'street'      => env('ENVIA_ORIGIN_STREET', 'Av. Benito Juarez 100'),
+            'city'        => env('ENVIA_ORIGIN_CITY', 'Monterrey'),
+            'state'       => env('ENVIA_ORIGIN_STATE', 'NL'),
+            'postal_code' => env('ENVIA_ORIGIN_POSTAL_CODE', '64060'),
+        ],
+    ],
+
 ];

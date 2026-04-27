@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Address;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Color;
 use App\Models\Earphone;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -53,23 +54,37 @@ class DatabaseSeeder extends Seeder
         // ── 4. Proveedores ───────────────────────────────────────────────────
         $suppliers = Supplier::factory(6)->create();
 
+        // ── 4b. Colores predefinidos ──────────────────────────────────────────
+        $colorList = [
+            ['name' => 'Negro',    'hex' => '#111827'],
+            ['name' => 'Blanco',   'hex' => '#F9FAFB'],
+            ['name' => 'Rojo',     'hex' => '#EF4444'],
+            ['name' => 'Azul',     'hex' => '#3B82F6'],
+            ['name' => 'Verde',    'hex' => '#22C55E'],
+            ['name' => 'Gris',     'hex' => '#6B7280'],
+            ['name' => 'Dorado',   'hex' => '#F59E0B'],
+            ['name' => 'Plateado', 'hex' => '#94A3B8'],
+        ];
+        $dbColors = collect($colorList)->map(fn($c) => Color::create($c));
+
         // ── 5. Catálogo de audífonos ─────────────────────────────────────────
         $earphones = collect();
         foreach (range(1, 20) as $i) {
             $numColors = fake()->numberBetween(1, 3);
+            $pickedColors = $dbColors->random($numColors);
             $colors = [];
-            for ($c = 0; $c < $numColors; $c++) {
+            foreach ($pickedColors as $dbColor) {
                 $colors[] = [
-                    'hex' => fake()->safeHexColor(),
+                    'color_id'   => $dbColor->id,
                     'idSupplier' => $suppliers->random()->idSupplier,
-                    'stock' => fake()->numberBetween(5, 20),
-                    'image' => 'images/products/' . fake()->randomElement(['apple.png', 'huawei.png', 'samsung.png']),
+                    'stock'      => fake()->numberBetween(5, 20),
+                    'image'      => 'images/products/' . fake()->randomElement(['apple.png', 'huawei.png', 'samsung.png']),
                 ];
             }
 
             $earphone = Earphone::factory()->create([
                 'colors' => $colors,
-                'stock' => collect($colors)->sum('stock'),
+                'stock'  => collect($colors)->sum('stock'),
             ]);
             $earphones->push($earphone);
         }

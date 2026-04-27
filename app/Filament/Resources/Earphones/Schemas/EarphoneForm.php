@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Earphones\Schemas;
 
+use App\Models\Color;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -43,10 +44,12 @@ class EarphoneForm
                     ->label('Colores y Stock')
                     ->live()
                     ->schema([
-                        \Filament\Forms\Components\ColorPicker::make('hex')
+                        Select::make('color_id')
                             ->label('Color')
+                            ->options(Color::pluck('name', 'id'))
+                            ->searchable()
                             ->required(),
-                        \Filament\Forms\Components\Select::make('idSupplier')
+                        Select::make('idSupplier')
                             ->label('Proveedor de este color')
                             ->options(\App\Models\Supplier::pluck('name', 'idSupplier'))
                             ->searchable()
@@ -57,7 +60,7 @@ class EarphoneForm
                             ->required()
                             ->default(0)
                             ->live(onBlur: true),
-                        \Filament\Forms\Components\FileUpload::make('image')
+                        FileUpload::make('image')
                             ->label('Imagen de este color')
                             ->image()
                             ->disk('public_uploads')
@@ -71,7 +74,12 @@ class EarphoneForm
                     })
                     ->grid(2)
                     ->columnSpanFull()
-                    ->itemLabel(fn (array $state): ?string => $state['hex'] ?? null),
+                    ->itemLabel(function (array $state): ?string {
+                        if (empty($state['color_id'])) {
+                            return null;
+                        }
+                        return Color::find($state['color_id'])?->name;
+                    }),
             ]);
     }
 }
