@@ -3,7 +3,8 @@
     "allow": [
       "Bash(grep -rl 'protected static ?string $navigationGroup' app/Filament/Resources/)",
       "Bash(xargs sed:*)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(chmod +x *)"
     ]
   }
 }

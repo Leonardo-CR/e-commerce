@@ -18,6 +18,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/scratch
+check_states.php
+test_track.php
+update_migrations.py
 /vendor
 Homestead.json
 Homestead.yaml

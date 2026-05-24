@@ -26,6 +26,9 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // ── 0. Roles y permisos ──────────────────────────────────────────────
+        $this->call(RolesAndPermissionsSeeder::class);
+
         // ── 1. Usuarios (Admin y Regulares) ─────────────────────────────────
         $users = collect();
 
@@ -35,6 +38,7 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
             'is_superuser' => true,
         ]);
+        $admin->syncRoles(['super_admin']);
         $users->push($admin);
 
         // Usuarios adicionales
@@ -42,7 +46,8 @@ class DatabaseSeeder extends Seeder
             'is_admin'     => false,
             'is_superuser' => false,
         ]);
-        
+        $others->each(fn (User $u) => $u->syncRoles(['cliente']));
+
         $todos = $users->merge($others);
 
         // ── 3. Direcciones (1-2 por usuario) ─────────────────────────────────
