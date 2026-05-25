@@ -34,69 +34,39 @@
         </div>
 
                 <div class="mb-10">
-                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex justify-between items-center mb-4">
                         <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">Presupuesto</h4>
-                        <span class="text-sm font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-                            ${{ number_format($minPrice) }} - ${{ number_format($maxPrice) }}
-                        </span>
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                            <input type="checkbox" wire:model.live="enablePriceFilter" class="w-3.5 h-3.5 text-indigo-600 border-slate-200 rounded focus:ring-indigo-500">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Activar</span>
+                        </label>
                     </div>
-
-                    <div x-data="{ 
-                        min: @entangle('minPrice'), 
-                        max: @entangle('maxPrice'),
-                        minlimit: 0,
-                        maxlimit: 10000,
-                        get minPercent() { return (this.min / this.maxlimit) * 100 },
-                        get maxPercent() { return (this.max / this.maxlimit) * 100 }
-                    }" class="relative h-10 w-full mt-4 flex items-center">
-                        
-                        <!-- Slider Track -->
-                        <div class="absolute w-full h-1.5 bg-slate-100 rounded-full"></div>
-                        
-                        <!-- Track Highlight -->
-                        <div 
-                            class="absolute h-1.5 bg-indigo-600 rounded-full"
-                            :style="`left: ${minPercent}%; right: ${100 - maxPercent}%`"
-                        ></div>
-
-                        <!-- Hidden Range Inputs -->
-                        <input 
-                            type="range" 
-                            x-model.number="min" 
-                            min="0" 
-                            max="10000" 
-                            step="50"
-                            class="absolute w-full h-2 opacity-0 cursor-pointer z-30 pointer-events-auto"
-                            @input="if(min > max - 100) min = max - 100"
-                        >
-                        <input 
-                            type="range" 
-                            x-model.number="max" 
-                            min="0" 
-                            max="10000" 
-                            step="50"
-                            class="absolute w-full h-2 opacity-0 cursor-pointer z-30 pointer-events-auto"
-                            @input="if(max < min + 100) max = min + 100"
-                        >
-
-                        <!-- Custom Handles -->
-                        <div 
-                            class="absolute w-6 h-6 bg-white border-2 border-indigo-600 rounded-full -ml-3 shadow-lg pointer-events-none z-40 flex items-center justify-center transition-transform"
-                            :style="`left: ${minPercent}%`"
-                        >
-                            <div class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
+                    <div class="flex items-center gap-2">
+                        <!-- Input Min -->
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">$</span>
+                            <input 
+                                type="number" 
+                                wire:model.live.debounce.500ms="minPrice" 
+                                placeholder="Mínimo" 
+                                class="w-full pl-6 pr-2 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                min="0"
+                                @if(!$enablePriceFilter) disabled @endif
+                            >
                         </div>
-                        <div 
-                            class="absolute w-6 h-6 bg-white border-2 border-indigo-600 rounded-full -ml-3 shadow-lg pointer-events-none z-40 flex items-center justify-center transition-transform"
-                            :style="`left: ${maxPercent}%`"
-                        >
-                            <div class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></div>
+                        <span class="text-slate-400 text-xs font-black">—</span>
+                        <!-- Input Max -->
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">$</span>
+                            <input 
+                                type="number" 
+                                wire:model.live.debounce.500ms="maxPrice" 
+                                placeholder="Máximo" 
+                                class="w-full pl-6 pr-2 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                min="0"
+                                @if(!$enablePriceFilter) disabled @endif
+                            >
                         </div>
-                    </div>
-                    
-                    <div class="flex justify-between mt-2 text-[10px] font-bold text-slate-300">
-                        <span>Min $0</span>
-                        <span>Max $10000+</span>
                     </div>
                 </div>
 
@@ -114,18 +84,7 @@
             </div>
         </div>
 
-        <!-- Type -->
-        <div>
-            <h3 class="text-sm font-bold text-slate-900 mb-4">Tipo</h3>
-            <div class="space-y-3">
-                @foreach(['Bluetooth', 'Cable', 'Híbrido'] as $type)
-                    <label class="flex items-center group cursor-pointer">
-                        <input type="checkbox" wire:model.live="types" value="{{ $type }}" class="w-4 h-4 text-indigo-600 border-slate-200 rounded focus:ring-indigo-500">
-                        <span class="ml-3 text-sm text-slate-600 group-hover:text-slate-900 transition">{{ $type }}</span>
-                    </label>
-                @endforeach
-            </div>
-        </div>
+
     </aside>
 
     <!-- Main Content -->

@@ -211,15 +211,6 @@
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                     <a href="/headphones"
                         class="btn-premium px-8 py-4 text-white rounded-full font-bold text-center">Comprar Ahora</a>
-                    <a href="#"
-                        class="px-8 py-4 text-slate-600 rounded-full font-bold border border-slate-200 hover:bg-white transition text-center flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Ver Video
-                    </a>
                 </div>
 
                 <div class="mt-12 flex items-center space-x-6">
@@ -272,8 +263,8 @@
                         </path>
                     </svg>
                 </div>
-                <h4 class="font-bold text-slate-900">2 Años de Garantía</h4>
-                <p class="text-xs text-slate-400">Soporte premium</p>
+                <h4 class="font-bold text-slate-900">1 Año de Garantía</h4>
+                <p class="text-xs text-slate-400">Directo con la marca</p>
             </div>
             <div class="flex flex-col items-center text-center">
                 <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 text-indigo-600">
@@ -283,8 +274,8 @@
                         </path>
                     </svg>
                 </div>
-                <h4 class="font-bold text-slate-900">Envío Gratis</h4>
-                <p class="text-xs text-slate-400">En pedidos sobre $99</p>
+                <h4 class="font-bold text-slate-900">Envíos a todo México</h4>
+                <p class="text-xs text-slate-400">Express y seguro</p>
             </div>
         </div>
     </div>
@@ -301,10 +292,6 @@
                 <div class="flex space-x-2">
                     <button
                         class="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold hover:bg-white transition">Todo</button>
-                    <button
-                        class="px-4 py-2 text-slate-500 rounded-lg text-sm font-bold hover:bg-white transition">Estudio</button>
-                    <button
-                        class="px-4 py-2 text-slate-500 rounded-lg text-sm font-bold hover:bg-white transition">Inalámbricos</button>
                 </div>
             </div>
 
@@ -383,7 +370,7 @@
                     La tecnología avanzada de Cancelación Activa de Ruido garantiza que tu enfoque permanezca donde
                     debe: en la música.
                 </p>
-                <a href="#" class="inline-flex items-center space-x-4 group">
+                <a href="/headphones" class="inline-flex items-center space-x-4 group">
                     <span
                         class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-slate-900 shadow-xl group-hover:scale-110 transition">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -392,7 +379,7 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </span>
-                    <span class="text-white font-bold text-lg">Explorar Tecnología</span>
+                    <span class="text-white font-bold text-lg">Explorar Catálogo</span>
                 </a>
             </div>
         </div>

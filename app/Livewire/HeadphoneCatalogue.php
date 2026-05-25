@@ -18,6 +18,7 @@ class HeadphoneCatalogue extends Component
     public $colors = [];
     public $types = [];
     public $selectedColors = [];
+    public $enablePriceFilter = false;
 
     public function mount()
     {
@@ -33,7 +34,11 @@ class HeadphoneCatalogue extends Component
 
     public function updated($propertyName)
     {
-        if (in_array($propertyName, ['search', 'minPrice', 'maxPrice', 'selectedBrands', 'colors'])) {
+        if (
+            in_array($propertyName, ['search', 'minPrice', 'maxPrice', 'enablePriceFilter']) ||
+            str_starts_with($propertyName, 'colors') ||
+            str_starts_with($propertyName, 'selectedBrands')
+        ) {
             $this->resetPage();
         }
     }
@@ -55,12 +60,28 @@ class HeadphoneCatalogue extends Component
             });
         }
 
-        $query->whereBetween('price', [$this->minPrice, $this->maxPrice]);
+        if ($this->enablePriceFilter) {
+            $query->whereBetween('price', [$this->minPrice, $this->maxPrice]);
+        }
 
-        if (!empty($this->colors)) {
-            $query->where(function ($q) {
-                foreach ($this->colors as $colorId) {
-                    $q->orWhereJsonContains('colors', ['color_id' => (int) $colorId]);
+        // Filtramos valores no válidos (como false cuando se desmarca un checkbox en Livewire)
+        $activeColors = collect($this->colors)
+            ->filter(fn($val) => $val !== false && $val !== null && $val !== '')
+            ->map(fn($val) => (int) $val)
+            ->values()
+            ->all();
+
+        if (!empty($activeColors)) {
+            $query->where(function ($q) use ($activeColors) {
+                $driver = \DB::connection()->getDriverName();
+                foreach ($activeColors as $colorId) {
+                    if ($driver === 'sqlite') {
+                        $q->orWhere('colors', 'like', '%"color_id":' . $colorId . '%')
+                          ->orWhere('colors', 'like', '%"color_id":"' . $colorId . '"%');
+                    } else {
+                        $q->orWhereJsonContains('colors', ['color_id' => (int) $colorId])
+                          ->orWhereJsonContains('colors', ['color_id' => (string) $colorId]);
+                    }
                 }
             });
         }
