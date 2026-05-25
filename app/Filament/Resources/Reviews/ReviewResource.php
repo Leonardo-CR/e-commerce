@@ -28,6 +28,16 @@ class ReviewResource extends Resource
 
     protected static \UnitEnum|string|null $navigationGroup = 'Tienda';
 
+    public static function canAccess(): bool
+    {
+        return false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ReviewForm::configure($schema);
