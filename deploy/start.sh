@@ -3,13 +3,32 @@ set -euo pipefail
 
 echo "==> Esperando a la base de datos..."
 ATTEMPTS=0
-until php artisan db:show >/dev/null 2>&1; do
+MAX_ATTEMPTS=15
+while true; do
+  # Ejecutamos db:show y capturamos la salida de error si falla
+  DB_ERRORS=$(php artisan db:show 2>&1 >/dev/null) && break
+
   ATTEMPTS=$((ATTEMPTS + 1))
-  if [ "$ATTEMPTS" -ge 30 ]; then
-    echo "!! No se pudo conectar a la base de datos tras 30 intentos."
+  echo "Intento $ATTEMPTS/$MAX_ATTEMPTS: La base de datos no está lista aún..."
+  if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
+    echo "=========================================================="
+    echo "!! ERROR: No se pudo conectar a la base de datos."
+    echo "Detalle del error de Laravel:"
+    echo "$DB_ERRORS"
+    echo "----------------------------------------------------------"
+    echo "CONSEJO DE DESPLIEGUE:"
+    echo "Asegúrate de configurar las variables de conexión en Railway."
+    echo "Si usas MySQL de Railway, mapea las siguientes variables de entorno:"
+    echo "  DB_CONNECTION = mysql"
+    echo "  DB_HOST = \${MYSQLHOST}"
+    echo "  DB_PORT = \${MYSQLPORT}"
+    echo "  DB_DATABASE = \${MYSQLDATABASE}"
+    echo "  DB_USERNAME = \${MYSQLUSER}"
+    echo "  DB_PASSWORD = \${MYSQLPASSWORD}"
+    echo "=========================================================="
     exit 1
   fi
-  sleep 2
+  sleep 3
 done
 
 echo "==> Cacheando configuracion, rutas y vistas..."
