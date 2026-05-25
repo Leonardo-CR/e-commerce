@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Habilitar workers múltiples para php artisan serve (evita bloqueos de assets)
+export PHP_CLI_SERVER_WORKERS="${PHP_CLI_SERVER_WORKERS:-4}"
+
 echo "==> Esperando a la base de datos..."
 ATTEMPTS=0
 MAX_ATTEMPTS=15
@@ -30,6 +33,9 @@ while true; do
   fi
   sleep 3
 done
+
+echo "==> Limpiando archivos temporales de desarrollo..."
+rm -f public/hot
 
 echo "==> Cacheando configuracion, rutas y vistas..."
 php artisan config:cache
