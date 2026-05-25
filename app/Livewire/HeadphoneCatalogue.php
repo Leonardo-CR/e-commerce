@@ -32,6 +32,16 @@ class HeadphoneCatalogue extends Component
         $this->selectedColors[$productId] = $index;
     }
 
+    public function toggleBrand($brand)
+    {
+        if (in_array($brand, $this->selectedBrands)) {
+            $this->selectedBrands = array_values(array_filter($this->selectedBrands, fn($b) => $b !== $brand));
+        } else {
+            $this->selectedBrands[] = $brand;
+        }
+        $this->resetPage();
+    }
+
     public function updated($propertyName)
     {
         if (

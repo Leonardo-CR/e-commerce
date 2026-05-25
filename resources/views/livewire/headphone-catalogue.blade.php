@@ -21,7 +21,7 @@
             <div class="flex flex-wrap gap-2 mb-6">
                 @foreach(['Huawei', 'Apple', 'Samsung'] as $brand)
                     <button 
-                        wire:click="$toggle('selectedBrands', '{{ $brand }}')"
+                        wire:click="toggleBrand('{{ $brand }}')"
                         class="flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all {{ in_array($brand, $selectedBrands) ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}"
                     >
                         {{ $brand }}
@@ -105,14 +105,6 @@
 
             <div class="flex items-center space-x-2">
                 <button class="px-6 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold shadow-lg hover:bg-slate-800 transition">Buscar</button>
-                @foreach(['Apple', 'Huawei', 'Samsung'] as $quickFilter)
-                    <button 
-                        wire:click="$set('search', '{{ $quickFilter }}')"
-                        class="px-4 py-2.5 bg-white border border-slate-100 rounded-full text-sm font-bold text-slate-600 hover:bg-slate-50 transition"
-                    >
-                        {{ $quickFilter }}
-                    </button>
-                @endforeach
             </div>
         </div>
 
