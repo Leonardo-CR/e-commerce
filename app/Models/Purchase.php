@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Purchase extends Model
@@ -13,6 +14,7 @@ class Purchase extends Model
     protected $primaryKey = 'idPurchase';
 
     protected $fillable = [
+        'idSupplier',
         'purchaseDate',
         'iva',
         'shipping_cost',
@@ -35,5 +37,10 @@ class Purchase extends Model
     public function purchaseItems(): HasMany
     {
         return $this->hasMany(PurchaseItem::class, 'idPurchase', 'idPurchase');
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'idSupplier', 'idSupplier');
     }
 }

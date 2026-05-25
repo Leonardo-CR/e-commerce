@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -30,6 +31,7 @@ class User extends Authenticatable implements FilamentUser
         'phone',
         'is_admin',
         'is_superuser',
+        'supplier_id',
         'last_login',
         'current_team_id',
         'email',
@@ -84,12 +86,17 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Review::class, 'user_id');
     }
 
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'idSupplier');
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($panel->getId() === 'admin') {
-            return $this->hasAnyRole(['super_admin', 'admin']);
-        }
-
-        return true;
+        return match ($panel->getId()) {
+            'admin'     => $this->hasAnyRole(['super_admin', 'admin']),
+            'proveedor' => $this->hasRole('proveedor') && $this->supplier_id !== null,
+            default     => false,
+        };
     }
 }

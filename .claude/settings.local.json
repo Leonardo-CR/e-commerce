@@ -4,7 +4,11 @@
       "Bash(grep -rl 'protected static ?string $navigationGroup' app/Filament/Resources/)",
       "Bash(xargs sed:*)",
       "Bash(xargs grep *)",
-      "Bash(chmod +x *)"
+      "Bash(chmod +x *)",
+      "Bash(php scratch/check_proveedor.php)",
+      "Bash(php artisan *)",
+      "Bash(findstr /i \"proveedor\\\\|shipping\\\\|settings\")",
+      "Bash(php scratch/test_settings.php)"
     ]
   }
 }

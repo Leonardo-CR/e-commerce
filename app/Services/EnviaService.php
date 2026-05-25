@@ -3,13 +3,14 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
 class EnviaService
 {
     private string $baseUrl;
-    private string $token;
+    private ?string $token;
     private array $origin;
 
     public function __construct()
@@ -19,7 +20,7 @@ class EnviaService
             ? 'https://api-test.envia.com'
             : 'https://api.envia.com';
 
-        $cfg = config('services.envia.origin');
+        $cfg = Setting::get('shipping.origin', config('services.envia.origin'));
         $this->origin = [
             'name'       => $cfg['name'],
             'phone'      => $cfg['phone'],
@@ -35,6 +36,12 @@ class EnviaService
 
     private function headers(): array
     {
+        if (empty($this->token)) {
+            throw new RuntimeException(
+                'El servicio de envíos no está configurado. Define la variable ENVIA_MX_API_KEY en el entorno.'
+            );
+        }
+
         return [
             'Authorization' => 'Bearer ' . $this->token,
             'Content-Type'  => 'application/json',

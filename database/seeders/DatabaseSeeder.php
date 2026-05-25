@@ -59,6 +59,16 @@ class DatabaseSeeder extends Seeder
         // ── 4. Proveedores ───────────────────────────────────────────────────
         $suppliers = Supplier::factory(6)->create();
 
+        // Usuario proveedor de ejemplo vinculado al primer supplier
+        $proveedorUser = User::firstOrCreate(['email' => 'proveedor@halosound.com'], [
+            'name'         => $suppliers->first()->name,
+            'password'     => Hash::make('proveedor@halosound.com'),
+            'is_admin'     => false,
+            'is_superuser' => false,
+            'supplier_id'  => $suppliers->first()->idSupplier,
+        ]);
+        $proveedorUser->syncRoles(['proveedor']);
+
         // ── 4b. Colores predefinidos ──────────────────────────────────────────
         $colorList = [
             ['name' => 'Negro',    'hex' => '#111827'],
