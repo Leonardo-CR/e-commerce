@@ -13,6 +13,7 @@
         rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <style>
         :root {
@@ -443,6 +444,9 @@
         </div>
     </footer>
 
+    <x-auth-modal />
+    <x-logout-modal />
+    @livewireScripts
 </body>
 
 </html>
