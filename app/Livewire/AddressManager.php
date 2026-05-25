@@ -8,6 +8,7 @@ class AddressManager extends Component
 {
     public $street, $colony, $city, $number, $state, $zip;
     public $showForm = false;
+    public $editingAddressId = null;
 
     protected $rules = [
         'street' => 'required|string|max:255',
@@ -26,7 +27,7 @@ class AddressManager extends Component
 
     public function resetForm()
     {
-        $this->reset(['street', 'colony', 'city', 'number', 'state', 'zip']);
+        $this->reset(['street', 'colony', 'city', 'number', 'state', 'zip', 'editingAddressId']);
     }
 
     public function store()
@@ -35,23 +36,60 @@ class AddressManager extends Component
 
         $user = auth()->user();
 
-        // If it's the first address, make it default
-        $isFirst = $user->addresses()->where('eliminated', false)->count() === 0;
+        if ($this->editingAddressId) {
+            $address = \App\Models\Address::where('idAddress', $this->editingAddressId)
+                ->where('user_id', $user->id)
+                ->first();
 
-        \App\Models\Address::create([
-            'street' => $this->street,
-            'colony' => $this->colony,
-            'city'   => $this->city,
-            'number' => $this->number,
-            'state'  => $this->state,
-            'zip'    => $this->zip,
-            'user_id'=> $user->id,
-            'is_default' => $isFirst
-        ]);
+            if ($address) {
+                $address->update([
+                    'street' => $this->street,
+                    'colony' => $this->colony,
+                    'city'   => $this->city,
+                    'number' => $this->number,
+                    'state'  => $this->state,
+                    'zip'    => $this->zip,
+                ]);
+                session()->flash('message', '¡Dirección actualizada con éxito!');
+            }
+        } else {
+            // If it's the first address, make it default
+            $isFirst = $user->addresses()->where('eliminated', false)->count() === 0;
+
+            \App\Models\Address::create([
+                'street' => $this->street,
+                'colony' => $this->colony,
+                'city'   => $this->city,
+                'number' => $this->number,
+                'state'  => $this->state,
+                'zip'    => $this->zip,
+                'user_id'=> $user->id,
+                'is_default' => $isFirst
+            ]);
+
+            session()->flash('message', '¡Dirección guardada con éxito!');
+        }
 
         $this->resetForm();
         $this->showForm = false;
-        session()->flash('message', '¡Dirección guardada con éxito!');
+    }
+
+    public function edit($idAddress)
+    {
+        $address = \App\Models\Address::where('idAddress', $idAddress)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($address) {
+            $this->editingAddressId = $address->idAddress;
+            $this->street = $address->street;
+            $this->number = $address->number;
+            $this->colony = $address->colony;
+            $this->city = $address->city;
+            $this->state = $address->state;
+            $this->zip = $address->zip;
+            $this->showForm = true;
+        }
     }
 
     public function setDefault($idAddress)

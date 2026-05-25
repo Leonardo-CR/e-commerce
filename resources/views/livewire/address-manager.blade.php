@@ -23,6 +23,7 @@
 
         @if($showForm)
             <div class="mb-12 bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+                <h3 class="text-2xl font-bold text-slate-900 mb-8">{{ $editingAddressId ? 'Editar Dirección' : 'Nueva Dirección' }}</h3>
                 <form wire:submit.prevent="store" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-slate-700 ml-1">Calle</label>
@@ -63,7 +64,7 @@
                     <div class="md:col-span-2 pt-4">
                         <button type="submit" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-xl shadow-slate-200 hover:scale-[1.02] transition transform active:scale-95 flex items-center justify-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            <span>Guardar Dirección</span>
+                            <span>{{ $editingAddressId ? 'Actualizar Dirección' : 'Guardar Dirección' }}</span>
                         </button>
                     </div>
                 </form>
@@ -91,7 +92,12 @@
                     </div>
 
                     <div class="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
-                        <button class="text-sm font-bold text-slate-400 hover:text-slate-600 transition">Editar</button>
+                        <button 
+                            wire:click="edit({{ $address->idAddress }})"
+                            class="text-sm font-bold text-slate-400 hover:text-indigo-600 transition"
+                        >
+                            Editar
+                        </button>
                         <button 
                             wire:click="delete({{ $address->idAddress }})"
                             wire:confirm="¿Estás seguro de eliminar esta dirección?"

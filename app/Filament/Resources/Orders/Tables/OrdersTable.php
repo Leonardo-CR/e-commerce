@@ -7,7 +7,7 @@ use App\Services\EnviaService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
@@ -155,7 +155,7 @@ class OrdersTable
                         }
                     }),
 
-                EditAction::make()->label('Editar'),
+                ViewAction::make()->label('Ver'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

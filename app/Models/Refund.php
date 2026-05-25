@@ -22,4 +22,17 @@ class Refund extends Model
     {
         return $this->belongsTo(Order::class, 'idOrder', 'idOrder');
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($refund) {
+            if ($refund->wasChanged('status') || $refund->wasRecentlyCreated) {
+                if ($refund->status === 'resolved') {
+                    $refund->order()->update(['status' => 'refunded']);
+                } elseif ($refund->status === 'pending') {
+                    $refund->order()->update(['status' => 'refund_requested']);
+                }
+            }
+        });
+    }
 }

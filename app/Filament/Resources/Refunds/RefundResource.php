@@ -28,6 +28,11 @@ class RefundResource extends Resource
 
     protected static \UnitEnum|string|null $navigationGroup = 'Ventas';
 
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return RefundForm::configure($schema);

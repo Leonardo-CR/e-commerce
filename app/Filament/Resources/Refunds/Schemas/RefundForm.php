@@ -17,13 +17,27 @@ class RefundForm
                     ->label('Pedido')
                     ->relationship('order', 'idOrder')
                     ->searchable()
-                    ->required(),
-                TextInput::make('status')
+                    ->required()
+                    ->disabled(fn ($operation) => $operation === 'edit'),
+                TextInput::make('user_email')
+                    ->label('Email del usuario')
+                    ->afterStateHydrated(function ($component, $record) {
+                        $component->state($record?->order?->user?->email);
+                    })
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->visible(fn ($operation) => $operation === 'edit'),
+                Select::make('status')
                     ->label('Estado')
+                    ->options([
+                        'pending' => 'Pendiente',
+                        'resolved' => 'Resuelto',
+                    ])
                     ->required(),
                 Textarea::make('reason')
                     ->label('Motivo')
                     ->required()
+                    ->disabled(fn ($operation) => $operation === 'edit')
                     ->columnSpanFull(),
             ]);
     }

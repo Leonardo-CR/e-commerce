@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources\Orders;
 
-use App\Filament\Resources\Orders\Pages\CreateOrder;
-use App\Filament\Resources\Orders\Pages\EditOrder;
 use App\Filament\Resources\Orders\Pages\ListOrders;
+use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Filament\Resources\Orders\Schemas\OrderForm;
 use App\Filament\Resources\Orders\Tables\OrdersTable;
 use App\Models\Order;
@@ -28,6 +27,16 @@ class OrderResource extends Resource
 
     protected static \UnitEnum|string|null $navigationGroup = 'Ventas';
 
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return OrderForm::configure($schema);
@@ -47,8 +56,7 @@ class OrderResource extends Resource
     {
         return [
             'index'  => ListOrders::route('/'),
-            'create' => CreateOrder::route('/create'),
-            'edit'   => EditOrder::route('/{record}/edit'),
+            'view'   => ViewOrder::route('/{record}'),
         ];
     }
 }

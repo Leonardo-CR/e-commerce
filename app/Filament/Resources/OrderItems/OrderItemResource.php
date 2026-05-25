@@ -26,6 +26,8 @@ class OrderItemResource extends Resource
 
     protected static ?string $navigationLabel = 'Artículos del pedido';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static \UnitEnum|string|null $navigationGroup = 'Ventas';
 
     public static function form(Schema $schema): Schema

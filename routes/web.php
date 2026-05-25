@@ -42,7 +42,22 @@ Route::middleware([
                 ->first();
 
             if ($order) {
-                $order->update(['status' => 'paid']);
+                // Registrar el pago en el sistema si aún no se ha hecho
+                if (!$order->idPayment) {
+                    $payment = \App\Models\Payment::create([
+                        'payment_date' => now(),
+                        'amount'       => $order->totalAmount,
+                        'status'       => 'paid',
+                        'method'       => 'conekta',
+                    ]);
+
+                    $order->update([
+                        'status'    => 'paid',
+                        'idPayment' => $payment->idPayment,
+                    ]);
+                } else {
+                    $order->update(['status' => 'paid']);
+                }
 
                 // Vaciar el carrito
                 $cart = auth()->user()->cart;

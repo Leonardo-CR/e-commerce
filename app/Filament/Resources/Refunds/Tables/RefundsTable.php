@@ -18,6 +18,10 @@ class RefundsTable
                     ->label('Pedido #')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('order.user.email')
+                    ->label('Email del usuario')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->searchable(),

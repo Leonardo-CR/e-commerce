@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Schemas;
 
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -38,6 +39,32 @@ class OrderForm
                     ->label('Empresa de envío'),
                 TextInput::make('TrackingNumber')
                     ->label('Número de rastreo'),
+                Repeater::make('orderItems')
+                    ->label('Productos de este pedido')
+                    ->relationship('orderItems')
+                    ->schema([
+                        Select::make('idEarphone')
+                            ->label('Producto')
+                            ->relationship('earphone', 'name')
+                            ->disabled(),
+                        TextInput::make('quantity')
+                            ->label('Cantidad')
+                            ->numeric()
+                            ->disabled(),
+                        TextInput::make('unit_price')
+                            ->label('Precio unitario')
+                            ->numeric()
+                            ->prefix('$')
+                            ->disabled(),
+                        TextInput::make('subtotal')
+                            ->label('Subtotal')
+                            ->numeric()
+                            ->prefix('$')
+                            ->disabled(),
+                    ])
+                    ->columnSpanFull()
+                    ->disabled()
+                    ->dehydrated(false),
             ]);
     }
 }
