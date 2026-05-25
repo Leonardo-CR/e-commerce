@@ -18,7 +18,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_NO_INTERACTION=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git unzip libzip-dev libonig-dev libxml2-dev \
+        git unzip libzip-dev libonig-dev libxml2-dev libicu-dev \
         libpng-dev libjpeg-dev libfreetype6-dev libcurl4-openssl-dev \
         default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
