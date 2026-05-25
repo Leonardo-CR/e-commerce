@@ -20,13 +20,18 @@ class SupplierResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
-    protected static ?string $modelLabel = 'Proveedor';
+    protected static ?string $modelLabel = 'Empresa proveedora';
 
-    protected static ?string $pluralModelLabel = 'Proveedores';
+    protected static ?string $pluralModelLabel = 'Empresas proveedoras';
 
-    protected static ?string $navigationLabel = 'Proveedores';
+    protected static ?string $navigationLabel = 'Empresas proveedoras';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Inventario';
+    protected static \UnitEnum|string|null $navigationGroup = 'Administración';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole('super_admin') ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {

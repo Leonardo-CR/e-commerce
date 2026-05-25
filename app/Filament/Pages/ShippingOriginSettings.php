@@ -100,8 +100,6 @@ class ShippingOriginSettings extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
-
-        return $user && $user->hasAnyRole(['super_admin', 'admin']);
+        return auth()->user()?->hasRole('super_admin') ?? false;
     }
 }

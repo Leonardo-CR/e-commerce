@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Earphones;
 use App\Filament\Resources\Earphones\Pages\CreateEarphone;
 use App\Filament\Resources\Earphones\Pages\EditEarphone;
 use App\Filament\Resources\Earphones\Pages\ListEarphones;
+use App\Filament\Resources\Earphones\RelationManagers\PurchaseItemsRelationManager;
 use App\Filament\Resources\Earphones\Schemas\EarphoneForm;
 use App\Filament\Resources\Earphones\Tables\EarphonesTable;
 use App\Models\Earphone;
@@ -40,7 +41,9 @@ class EarphoneResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            PurchaseItemsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

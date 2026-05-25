@@ -28,6 +28,11 @@ class UserResource extends Resource
 
     protected static \UnitEnum|string|null $navigationGroup = 'Administración';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole('super_admin') ?? false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);

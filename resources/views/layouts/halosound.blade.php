@@ -55,6 +55,15 @@
 
                         <!-- Desktop User Menu -->
                         <div class="hidden md:flex items-center space-x-4 border-l border-slate-200 pl-6 ml-2">
+                            @if(!auth()->user()->hasRole('cliente'))
+                                @php
+                                    $panelUrl = auth()->user()->hasRole('proveedor') ? '/proveedor' : '/admin';
+                                @endphp
+                                <a href="{{ $panelUrl }}"
+                                    class="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition">
+                                    Panel
+                                </a>
+                            @endif
                             <a href="{{ route('orders') }}" class="text-sm font-bold text-slate-700 hover:text-indigo-600 transition">
                                 Mis Órdenes
                             </a>
@@ -105,6 +114,14 @@
                 
                 <div class="pt-6 border-t border-slate-50 flex flex-col space-y-4">
                     @auth
+                        @if(!auth()->user()->hasRole('cliente'))
+                            @php
+                                $panelUrl = auth()->user()->hasRole('proveedor') ? '/proveedor' : '/admin';
+                            @endphp
+                            <a href="{{ $panelUrl }}" class="text-base font-bold text-indigo-600">
+                                Panel
+                            </a>
+                        @endif
                         <a href="{{ route('orders') }}" class="text-base font-bold text-slate-700">Mis Órdenes</a>
                         <a href="{{ route('addresses') }}" class="text-base font-bold text-slate-700">Direcciones</a>
                         <a href="{{ route('profile.show') }}" class="text-base font-bold text-slate-600">Configuración</a>

@@ -31,6 +31,11 @@ class ProveedorResource extends Resource
 
     protected static \UnitEnum|string|null $navigationGroup = 'Administración';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole('super_admin') ?? false;
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->role('proveedor');
