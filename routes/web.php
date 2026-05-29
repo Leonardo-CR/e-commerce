@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Order;
+use App\Mail\OrderPaidMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -64,6 +66,13 @@ Route::middleware([
                 if ($cart) {
                     $cart->cartItems()->delete();
                 }
+
+                // Enviar el correo de confirmación de compra
+                try {
+                    Mail::to(auth()->user()->email)->send(new OrderPaidMail($order));
+                } catch (\Throwable $mailEx) {
+                    \Illuminate\Support\Facades\Log::error("No se pudo enviar el correo del pedido {$order->idOrder}: " . $mailEx->getMessage());
+                }
             }
         }
 
@@ -78,7 +87,33 @@ Route::middleware([
                 ->where('user_id', auth()->id())
                 ->first();
 
-            $order?->update(['status' => 'failed']);
+            if ($order && $order->status !== 'failed' && $order->status !== 'paid') {
+                Illuminate\Support\Facades\DB::beginTransaction();
+                try {
+                    foreach ($order->orderItems as $orderItem) {
+                        $earphone = \App\Models\Earphone::where('idEarphone', $orderItem->idEarphone)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($earphone) {
+                            $colors = $earphone->colors ?? [];
+                            foreach ($colors as $index => $colorData) {
+                                if (($colorData['color_id'] ?? null) == $orderItem->color_id) {
+                                    $colors[$index]['stock'] = ((int) ($colorData['stock'] ?? 0)) + $orderItem->quantity;
+                                    break;
+                                }
+                            }
+                            $earphone->colors = $colors;
+                            $earphone->stock = collect($colors)->sum('stock');
+                            $earphone->save();
+                        }
+                    }
+                    $order->update(['status' => 'failed']);
+                    Illuminate\Support\Facades\DB::commit();
+                } catch (\Throwable $e) {
+                    Illuminate\Support\Facades\DB::rollBack();
+                }
+            }
         }
 
         return view('order.failed');

@@ -7,6 +7,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\EnviaService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class CartDetail extends Component
@@ -61,6 +62,24 @@ class CartDetail extends Component
             ->first();
 
         if ($item) {
+            // Validar stock del color seleccionado en la DB
+            $earphone = $item->earphone;
+            $colors = $earphone->colors ?? [];
+            $availableStock = 0;
+            foreach ($colors as $colorData) {
+                if (($colorData['color_id'] ?? null) == $item->color_id) {
+                    $availableStock = (int) ($colorData['stock'] ?? 0);
+                    break;
+                }
+            }
+
+            if ($quantity > $availableStock) {
+                $colorName = \App\Models\Color::find($item->color_id)?->name ?? 'desconocido';
+                session()->flash('error', "No hay suficiente stock para {$earphone->name} ({$colorName}). Disponible: {$availableStock}.");
+                $this->dispatch('cart-updated');
+                return;
+            }
+
             $item->quantity = $quantity;
             $item->subtotal = $quantity * $item->unit_price;
             $item->save();
@@ -142,25 +161,80 @@ class CartDetail extends Component
 
         if ($items->isEmpty()) return;
 
-        $subtotal = $items->sum('subtotal');
-        $total    = $subtotal + $this->shippingCost;
+        DB::beginTransaction();
 
-        $order = Order::create([
-            'user_id'         => $user->id,
-            'status'          => 'pending',
-            'totalAmount'     => $total,
-            'shippingCost'    => $this->shippingCost,
-            'shippingCompany' => $this->shippingCarrier,
-        ]);
+        try {
+            // Validar y descontar stock
+            foreach ($items as $item) {
+                // lockForUpdate() previene que otros usuarios modifiquen el stock al mismo tiempo
+                $earphone = \App\Models\Earphone::where('idEarphone', $item->idEarphone)
+                    ->lockForUpdate()
+                    ->first();
 
-        foreach ($items as $item) {
-            OrderItem::create([
-                'idOrder'    => $order->idOrder,
-                'idEarphone' => $item->idEarphone,
-                'quantity'   => $item->quantity,
-                'unit_price' => $item->unit_price,
-                'subtotal'   => $item->subtotal,
+                if (!$earphone) {
+                    session()->flash('error', "El producto {$item->earphone->name} ya no está disponible.");
+                    DB::rollBack();
+                    return;
+                }
+
+                // Buscar el color correcto en el array de colors
+                $colors = $earphone->colors ?? [];
+                $colorIndex = null;
+                foreach ($colors as $index => $colorData) {
+                    if (($colorData['color_id'] ?? null) == $item->color_id) {
+                        $colorIndex = $index;
+                        break;
+                    }
+                }
+
+                if ($colorIndex === null) {
+                    session()->flash('error', "El color seleccionado para {$earphone->name} no está disponible.");
+                    DB::rollBack();
+                    return;
+                }
+
+                $availableStock = (int) ($colors[$colorIndex]['stock'] ?? 0);
+                if ($availableStock < $item->quantity) {
+                    $colorName = \App\Models\Color::find($item->color_id)?->name ?? 'desconocido';
+                    session()->flash('error', "No hay suficiente stock para {$earphone->name} ({$colorName}). Disponible: {$availableStock}, solicitado: {$item->quantity}.");
+                    DB::rollBack();
+                    return;
+                }
+
+                // Descontar stock
+                $colors[$colorIndex]['stock'] = $availableStock - $item->quantity;
+                $earphone->colors = $colors;
+                $earphone->stock = collect($colors)->sum('stock');
+                $earphone->save();
+            }
+
+            $subtotal = $items->sum('subtotal');
+            $total    = $subtotal + $this->shippingCost;
+
+            $order = Order::create([
+                'user_id'         => $user->id,
+                'status'          => 'pending',
+                'totalAmount'     => $total,
+                'shippingCost'    => $this->shippingCost,
+                'shippingCompany' => $this->shippingCarrier,
             ]);
+
+            foreach ($items as $item) {
+                OrderItem::create([
+                    'idOrder'    => $order->idOrder,
+                    'idEarphone' => $item->idEarphone,
+                    'color_id'   => $item->color_id,
+                    'quantity'   => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'subtotal'   => $item->subtotal,
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            session()->flash('error', 'Error al procesar el inventario: ' . $e->getMessage());
+            return;
         }
 
         session(['pending_order_id' => $order->idOrder]);
@@ -202,10 +276,35 @@ class CartDetail extends Component
 
             return redirect()->away($conektaOrder->getCheckout()->getUrl());
         } catch (\Throwable $e) {
-            $order->orderItems()->delete();
-            $order->delete();
-            session()->forget('pending_order_id');
+            // Revertir el stock y borrar la orden
+            DB::beginTransaction();
+            try {
+                foreach ($order->orderItems as $orderItem) {
+                    $earphone = \App\Models\Earphone::where('idEarphone', $orderItem->idEarphone)
+                        ->lockForUpdate()
+                        ->first();
 
+                    if ($earphone) {
+                        $colors = $earphone->colors ?? [];
+                        foreach ($colors as $index => $colorData) {
+                            if (($colorData['color_id'] ?? null) == $orderItem->color_id) {
+                                $colors[$index]['stock'] = ((int) ($colorData['stock'] ?? 0)) + $orderItem->quantity;
+                                break;
+                            }
+                        }
+                        $earphone->colors = $colors;
+                        $earphone->stock = collect($colors)->sum('stock');
+                        $earphone->save();
+                    }
+                }
+                $order->orderItems()->delete();
+                $order->delete();
+                DB::commit();
+            } catch (\Throwable $rollbackEx) {
+                DB::rollBack();
+            }
+
+            session()->forget('pending_order_id');
             session()->flash('error', 'Error al generar el pago: ' . $e->getMessage());
         }
     }

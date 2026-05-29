@@ -1,4 +1,19 @@
-<div x-data="{ filtersOpen: false }" class="flex flex-col lg:flex-row gap-8 py-8 lg:py-12">
+<div x-data="{ filtersOpen: false }" class="flex flex-col lg:flex-row gap-8 py-8 lg:py-12 w-full relative">
+    {{-- Flash messages (toast) --}}
+    <div class="fixed top-24 right-6 z-50 max-w-sm space-y-3 pointer-events-auto">
+        @if(session()->has('error'))
+            <div class="bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100 shadow-lg text-sm flex items-start gap-2 animate-bounce">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+        @if(session()->has('message'))
+            <div class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl border border-emerald-100 shadow-lg text-sm flex items-start gap-2">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('message') }}</span>
+            </div>
+        @endif
+    </div>
     <!-- Mobile Filter Toggle -->
     <div class="lg:hidden flex items-center justify-between mb-2">
         <button 
@@ -140,7 +155,7 @@
 
                         <!-- Colors Display -->
                         @if($product->colors)
-                            <div class="flex items-center gap-1.5 mb-4">
+                            <div class="flex items-center gap-1.5 mb-2">
                                 @foreach($product->colors as $color)
                                     @php
                                         $colorImageUrl = str_contains($color['image'], 'images/') ? asset($color['image']) : Storage::url($color['image']);
@@ -157,8 +172,23 @@
                                     ></button>
                                 @endforeach
                             </div>
+                            
+                            <!-- Stock Display by Selected Color -->
+                            @php
+                                $selectedColorIndex = $selectedColors[$product->idEarphone] ?? 0;
+                                $selectedColorData = $product->colors[$selectedColorIndex] ?? null;
+                                $selectedStock = $selectedColorData ? (int) $selectedColorData['stock'] : 0;
+                            @endphp
+                            <div class="text-xs font-semibold mt-1 mb-3">
+                                @if($selectedStock > 0)
+                                    <span class="text-emerald-600">Disponibles: {{ $selectedStock }} piezas</span>
+                                @else
+                                    <span class="text-red-500 font-bold">Agotado en este color</span>
+                                @endif
+                            </div>
                         @else
                             <div class="h-4 mb-4"></div>
+                            <div class="h-5 mt-1 mb-3"></div>
                         @endif
                         <div class="flex items-center justify-between">
                             <span class="text-xl font-black text-slate-900">${{ number_format($product->price, 0) }}</span>

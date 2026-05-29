@@ -119,7 +119,14 @@ class HeadphoneCatalogue extends Component
         $product = Earphone::findOrFail($productId);
 
         $colorIndex = $this->selectedColors[$productId] ?? 0;
-        $colorId    = $product->colors[$colorIndex]['color_id'] ?? null;
+        $colorData  = $product->colors[$colorIndex] ?? null;
+        $colorId    = $colorData['color_id'] ?? null;
+        $availableStock = (int) ($colorData['stock'] ?? 0);
+
+        if ($availableStock <= 0) {
+            session()->flash('error', 'Este color está agotado y no se puede agregar al carrito.');
+            return;
+        }
 
         $cart = \App\Models\Cart::firstOrCreate(
             ['user_id' => $user->id, 'status' => 'active'],
@@ -132,6 +139,10 @@ class HeadphoneCatalogue extends Component
             ->first();
 
         if ($cartItem) {
+            if ($cartItem->quantity + 1 > $availableStock) {
+                session()->flash('error', 'No puedes agregar más productos de los disponibles en inventario.');
+                return;
+            }
             $cartItem->increment('quantity');
             $cartItem->subtotal = $cartItem->quantity * $cartItem->unit_price;
             $cartItem->save();
